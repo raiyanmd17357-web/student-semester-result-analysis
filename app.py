@@ -1,42 +1,55 @@
+
+
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import streamlit as st
 
-# Title
-st.title("Student Semester-wise Performance Analysis")
+data = {
+    "Student_ID": [101, 102, 103, 104, 105],
+    "Name": ["Aman", "Riya", "Arjun", "Priya", "Rahul"],
+    "Semester_1": [65, 72, 60, 68, 55],
+    "Semester_2": [70, 74, 58, 72, 60],
+    "Semester_3": [75, 76, 62, 74, 63],
+    "Semester_4": [80, 78, 65, 79, 67]
+}
 
-# Load data
-df = pd.read_csv("data/student_performance.csv")
+df = pd.DataFrame(data)
+df.to_csv("student_results.csv", index=False)
 
-st.subheader("Dataset Preview")
-st.dataframe(df)
 
-semester_cols = ['Semester_1', 'Semester_2', 'Semester_3', 'Semester_4']
+df = pd.read_csv("student_results.csv")
+print("Dataset:\n")
+print(df)
 
-# Mean calculation
-mean_scores = df[semester_cols].mean()
+semester_cols = ["Semester_1", "Semester_2", "Semester_3", "Semester_4"]
+df["Average"] = df[semester_cols].mean(axis=1)
 
-st.subheader("Average Marks per Semester")
-st.bar_chart(mean_scores)
+print("\nDataset with Average:\n")
+print(df)
 
-# Growth calculation
-df['Total_Growth'] = df['Semester_4'] - df['Semester_1']
+plt.figure()
 
-df['Performance_Status'] = np.where(
-    df['Total_Growth'] > 0, 'Improving',
-    np.where(df['Total_Growth'] < 0, 'Declining', 'Stable')
-)
+for index, row in df.iterrows():
+    plt.plot(
+        [1, 2, 3, 4],
+        row[semester_cols],
+        marker="o",
+        label=row["Name"]
+    )
 
-st.subheader("Performance Status")
-st.dataframe(df[['Name', 'Total_Growth', 'Performance_Status']])
-
-# Line chart
-st.subheader("Performance Trend")
-for i in range(len(df)):
-    plt.plot(semester_cols, df.loc[i, semester_cols], marker='o', label=df.loc[i, 'Name'])
-
+plt.title("Student Performance Across Semesters")
 plt.xlabel("Semester")
 plt.ylabel("Marks")
+plt.xticks([1, 2, 3, 4])
 plt.legend()
-st.pyplot(plt)
+plt.grid(True)
+plt.show()
+plt.figure()
+plt.bar(df["Name"], df["Average"])
+plt.title("Overall Student Performance Comparison")
+plt.xlabel("Student Name")
+plt.ylabel("Average Marks")
+plt.grid(axis="y")
+plt.show()
+print("\nClass Average:", round(df['Average'].mean(), 2))
+print("\nTop Performer:", df.loc[df['Average'].idxmax(), 'Name'])
+print("Lowest Performer:", df.loc[df['Average'].idxmin(), 'Name'])
